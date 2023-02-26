@@ -1,0 +1,150 @@
+<html>
+<head>
+    <title>Blockchain Voting System</title>
+</head>
+<body>
+    <h1>Blockchain Voting System</h1>
+
+    <!-- List of voting proposals -->
+    <div id="proposal-list"></div>
+
+    <!-- Voting form -->
+    <form id="vote-form">
+        <label for="proposal">Select a proposal:</label>
+        <select id="proposal"></select>
+        <input type="submit" value="Vote">
+    </form>
+
+    <!-- Web3.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.0.0-beta.55/dist/web3.min.js"></script>
+
+    <script>
+        // Connect to the Ethereum blockchain using Web3.js
+        const web3 = new Web3(Web3.givenProvider || 'http://localhost:8545');
+
+        // ABI (Application Binary Interface) for the Voting contract
+        const abi = [{
+            "inputs": [],
+            "stateMutability": "nonpayable",
+            "type": "constructor",
+            "signature": "constructor"
+        }, {
+            "inputs": [{
+                "internalType": "address",
+                "name": "voter",
+                "type": "address"
+            }, {
+                "internalType": "uint256",
+                "name": "age",
+                "type": "uint256"
+            }, {
+                "internalType": "bytes32",
+                "name": "nationality",
+                "type": "bytes32"
+            }],
+            "name": "giveRightToVote",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function",
+            "signature": "0x7dbb737f"
+        }, {
+            "inputs": [{
+                "internalType": "uint256",
+                "name": "proposal",
+                "type": "uint256"
+            }],
+            "name": "vote",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function",
+            "signature": "0x5a6d9f9f"
+        }, {
+            "inputs": [{
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }],
+            "name": "voters",
+            "outputs": [{
+                "internalType": "uint256",
+                "name": "age",
+                "type": "uint256"
+            }, {
+                "internalType": "bytes32",
+                "name": "nationality",
+                "type": "bytes32"
+            }, {
+                "internalType": "bool",
+                "name": "voted",
+                "type": "bool"
+            }, {
+                "internalType": "uint256",
+                "name": "vote",
+                "type": "uint256"
+            }],
+            "stateMutability": "view",
+            "type": function",
+              "signature": "0x26976e1e"
+		},{
+"inputs": [],
+"name": "winnerName",
+"outputs": [{
+"internalType": "bytes32",
+"name": "",
+"type": "bytes32"
+}],
+"stateMutability": "view",
+"type": "function",
+"signature": "0x2c8e5c5e"
+}, {
+"inputs": [],
+"name": "winners",
+"outputs": [{
+"internalType": "bytes32[]",
+"name": "",
+"type": "bytes32[]"
+}],
+"stateMutability": "view",
+"type": "function",
+"signature": "0x8f0c9f57"
+}]; 
+    // Address of the Voting contract
+    const contractAddress = '0x...';
+
+    // Create a contract instance
+    const contract = new web3.eth.Contract(abi, contractAddress);
+
+    // Get the list of voting proposals
+    contract.methods.winners().call().then(winners => {
+        // Populate the proposal list
+        const proposalList = document.getElementById('proposal-list');
+        for (let i = 0; i < winners.length; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.text = winners[i];
+            proposalList.appendChild(option);
+        }
+    });
+
+    // Handle the vote form submission
+    document.getElementById('vote-form').addEventListener('submit', e => {
+        e.preventDefault();
+
+        // Get the selected proposal
+        const proposal = document.getElementById('proposal').value;
+
+        // Call the vote function
+        contract.methods.vote(proposal).send({ from: web3.eth.defaultAccount }).then(() => {
+            alert('Your vote has been submitted. Thank you!');
+        }).catch(error => {
+            console.error(error);
+            alert('An error occurred. Please try again.');
+        });
+    });
+</script>
+</body>
+</html>
+
+
+
+
